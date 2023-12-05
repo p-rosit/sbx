@@ -57,14 +57,40 @@ TRM_FUNC(trmp_exit) {
 }
 
 TRM_FUNC(trmp_list_commands) {
+    int i, ncommands;
+    trmp_function_array_t functions;
+
+    functions = trmp_session->internal_state.functions;
+    ncommands = functions.nfuncs;
+
     printf("Available commands:\n");
-    for (int i = 0; i < trmp_session->internal_state.functions.nfuncs; i++) {
-        printf("    %d: %s\n", i, trmp_session->internal_state.functions.funcs[i].name);
+    for (i = 0; i < ncommands; i++) {
+        printf("    %d: %s\n", i, functions.funcs[i].name);
     }
     TRM_END;
 }
 
 TRM_FUNC(trmp_tell, char*, command) {
-    printf("Here: %s\n", command);
+    int i, ncommands, exists;
+    char sig_str[TRMP_MAX_ARGS * (TRMP_MAX_TYPE_LEN + 2)];
+    trmp_function_array_t functions;
+    trmp_signature_t sig;
+    
+    functions = trmp_session->internal_state.functions;
+    ncommands = functions.nfuncs;
+    for (i = 0, exists = 0; i < ncommands; i++) {
+        if (strcmp(functions.funcs[i].name, command) == 0) {
+            exists = 1;
+            sig = functions.funcs[i].signature;
+            trmp_unparse_types(sig_str, sig.ntypes, sig.types);
+        }
+    }
+
+    if (exists) {
+        printf("%s has signature (%s)\n", command, sig_str);
+    } else {
+        printf("Command with name \"%s\" not found.\n", command);
+    }
+
     TRM_END;
 }

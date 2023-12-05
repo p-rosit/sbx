@@ -102,6 +102,8 @@ trmp_code_t trmp_get_command(trmp_session_t* session, char* command) {
                 }
                 len--; index--;
             }
+        } else if (c == '\t') {
+            continue;
         } else if (len < TRMP_COMMAND_SIZE) {
             printf("%c%s", c, command + index);
             for (i = index; i < len; i++) {

@@ -46,7 +46,7 @@ void trm_err(trmp_session_t* session) {
 int main() {
     trmp_session_t session;
 
-    session = trm_make_session("trm> ", 50);
+    session = trm_make_session("\x1b[32mtrm\x1b[0m> ", 50);
 
     trm_register_command(&session, trmp_exit, "exit");
     trm_register_command(&session, trmp_list_commands, "list_commands");
