@@ -56,3 +56,15 @@ TRM_FUNC(trmp_exit) {
     TRM_END;
 }
 
+TRM_FUNC(trmp_list_commands) {
+    printf("Available commands:\n");
+    for (int i = 0; i < trmp_session->internal_state.functions.nfuncs; i++) {
+        printf("    %d: %s\n", i, trmp_session->internal_state.functions.funcs[i].name);
+    }
+    TRM_END;
+}
+
+TRM_FUNC(trmp_tell, char*, command) {
+    printf("Here: %s\n", command);
+    TRM_END;
+}

@@ -1,10 +1,6 @@
 #ifndef TRMP_DATA_H
 #define TRMP_DATA_H
 
-#ifndef TRM_STATE
-    #define TRM_STATE
-#endif
-
 #define TRMP_MAX_ARGS     (8)
 #define TRMP_MESSAGE_SIZE (2048)
 #define TRMP_COMMAND_SIZE (100)
@@ -122,7 +118,9 @@ struct trmp_internal_state {
 
 struct trm_state {
     char* prefix;
+#ifdef TRM_STATE
     TRM_STATE
+#endif
 };
 
 struct trmp_session {
