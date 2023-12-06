@@ -119,6 +119,7 @@ trmp_code_t trm_unregister_command(trmp_session_t* session, trmp_function_name_t
 
     if (!exists) {
         sprintf(session->internal_state.msg, "No command exists");
+        session->internal_state.code = TRMP_NO_COMMAND_ERROR;
         return TRMP_NO_COMMAND_ERROR;
     }
 

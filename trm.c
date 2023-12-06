@@ -24,9 +24,12 @@
             );                                                                  \
             return trmp_return_code;                                            \
         }                                                                       \
-        TRMP_MAKE_ARGS_(TRMP_COUNT_ARGS(__VA_ARGS__), __VA_ARGS__);             \
+        TRMP_MAKE_ARGS_(TRMP_COUNT_ARGS(__VA_ARGS__), __VA_ARGS__);
 
-#define TRM_END } return TRMP_OK;
+#define TRM_END \
+        }                                                                       \
+    trmp_session->internal_state.code = TRMP_OK;                                \
+    return TRMP_OK;
 
 #define TRM_REGISTER_COMMAND(session, func) \
     trm_register_command(session, func, #func)

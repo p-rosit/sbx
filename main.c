@@ -29,7 +29,6 @@ TRM_FUNC(read_state, trm_state_t*, state) {
 }
 
 void trm_err(trmp_session_t* session) {
-    printf("%d\n", session->internal_state.code);
     if (session->internal_state.code != TRMP_OK) {
         printf("%d: %s\n", session->internal_state.code, session->internal_state.msg);
     }
@@ -45,8 +44,6 @@ int main() {
     TRM_REGISTER_COMMAND(&session, print_thing);
     TRM_REGISTER_COMMAND(&session, function);
     TRM_REGISTER_COMMAND(&session, read_state);
-    TRM_UNREGISTER_COMMAND(&session, trmp_exit);
-    trm_err(&session);
 
     trm_start_session(&session);
 

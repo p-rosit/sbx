@@ -196,6 +196,7 @@ trmp_code_t trmp_parse_string(trmp_session_t* session, trmp_argument_t* arg, trm
 
     if (**arg_str != '\"') {
         sprintf(session->internal_state.msg, "expected string to start with \", got %c", **arg_str);
+        session->internal_state.code = TRMP_PARSE_ERROR;
         return TRMP_PARSE_ERROR;
     }
     *arg_str += 1;
@@ -204,6 +205,7 @@ trmp_code_t trmp_parse_string(trmp_session_t* session, trmp_argument_t* arg, trm
     while ((*arg_str)[len] != '"' && (*arg_str)[len] != '\0') {len++;}
     if ((*arg_str)[len] == '\0') {
         sprintf(session->internal_state.msg, "unexpected EOL, expected string to end with \"");
+        session->internal_state.code = TRMP_PARSE_ERROR;
         return TRMP_PARSE_ERROR;
     }
 

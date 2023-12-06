@@ -13,6 +13,8 @@ trmp_code_t trmp_get_command(trmp_session_t* session, char* command);
 int trmp_is_directional_key(int, trmp_key_press_t*);
 int trmp_getchar(trmp_key_press_t*);
 
+void trmp_clear_line(int);
+
 
 void trmp_intepreter(trmp_session_t* session) {
     char command[TRMP_COMMAND_SIZE + 1], **cmd;
@@ -60,7 +62,7 @@ trmp_code_t trmp_get_command(trmp_session_t* session, char* command) {
 
                     history_index += 1;
                     temp = trmp_get_history_item(&session->internal_state.history, history_index);
-                    printf("\r%*c%*c\r", (int) strlen(session->state.prefix), ' ', (int) strlen(command), ' ');
+                    trmp_clear_line(strlen(session->state.prefix) + strlen(command));
                     printf("%s%s", session->state.prefix, temp->command);
                     strcpy(command, temp->command);
                     index = len = strlen(command);
@@ -70,7 +72,7 @@ trmp_code_t trmp_get_command(trmp_session_t* session, char* command) {
                 if (history_index > 0) {
                     history_index -= 1;
                     temp = trmp_get_history_item(&session->internal_state.history, history_index);
-                    printf("\r%*c%*c\r", (int) strlen(session->state.prefix), ' ', (int) strlen(command), ' ');
+                    trmp_clear_line(strlen(session->state.prefix) + strlen(command));
                     printf("%s%s", session->state.prefix, temp->command);
                     strcpy(command, temp->command);
                     index = len = strlen(command);
@@ -176,6 +178,10 @@ int trmp_is_directional_key(int c, trmp_key_press_t* key) {
     }
 
     return 1;
+}
+
+void trmp_clear_line(int len) {
+    printf("\r%*c\r", len, ' ');
 }
 
 #endif
