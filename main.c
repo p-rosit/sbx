@@ -28,15 +28,8 @@ TRM_FUNC(read_state, trm_state_t*, state) {
     TRM_END;
 }
 
-TRM_FUNC(list_functions) {
-    printf("Available functions:\n");
-    for (int i = 0; i < trmp_session->internal_state.functions.nfuncs; i++) {
-        printf("  %d: %s\n", i, trmp_session->internal_state.functions.funcs[i].name);
-    }
-    TRM_END;
-}
-
 void trm_err(trmp_session_t* session) {
+    printf("%d\n", session->internal_state.code);
     if (session->internal_state.code != TRMP_OK) {
         printf("%d: %s\n", session->internal_state.code, session->internal_state.msg);
     }
@@ -48,15 +41,14 @@ int main() {
 
     session = trm_make_session("\x1b[32mtrm\x1b[0m> ", 50);
 
-    trm_register_command(&session, trmp_exit, "exit");
-    trm_register_command(&session, trmp_list_commands, "list_commands");
-    trm_register_command(&session, trmp_tell, "tell");
     TRM_REGISTER_COMMAND(&session, print);
     TRM_REGISTER_COMMAND(&session, print_thing);
     TRM_REGISTER_COMMAND(&session, function);
     TRM_REGISTER_COMMAND(&session, read_state);
+    TRM_UNREGISTER_COMMAND(&session, trmp_exit);
+    trm_err(&session);
 
-    trmp_intepreter(&session);
+    trm_start_session(&session);
 
     trm_free_session(&session);
 

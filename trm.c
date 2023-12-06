@@ -30,6 +30,8 @@
 
 #define TRM_REGISTER_COMMAND(session, func) \
     trm_register_command(session, func, #func)
+#define TRM_UNREGISTER_COMMAND(session, func) \
+    trm_unregister_command(session, #func)
 
 #define TRMP_ARG(arg_type, name) \
     trmp_return_code = trmp_parse_type(trmp_session, &trmp_argument_type, #arg_type); \
@@ -94,3 +96,24 @@ TRM_FUNC(trmp_tell, char*, command) {
 
     TRM_END;
 }
+
+
+void trm_start_session(trmp_session_t* session) {
+    trmp_code_t has_exit, has_tell, has_list;
+    has_list = trm_register_command(session, trmp_list_commands, "list_commands");
+    has_tell = trm_register_command(session, trmp_tell, "tell");
+    has_exit = trm_register_command(session, trmp_exit, "exit");
+
+    trmp_intepreter(session);
+
+    if (has_exit != TRMP_COMMAND_EXISTS_ERROR) {
+        trm_unregister_command(session, "exit");
+    }
+    if (has_tell != TRMP_COMMAND_EXISTS_ERROR) {
+        trm_unregister_command(session, "tell");
+    }
+    if (has_list != TRMP_COMMAND_EXISTS_ERROR) {
+        trm_unregister_command(session, "list_commands");
+    }
+}
+

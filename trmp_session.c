@@ -17,6 +17,7 @@ trmp_session_t trm_make_session();
 void           trm_free_session(trmp_session_t*);
 
 trmp_code_t trm_register_command(trmp_session_t*, trmp_command_t, trmp_function_name_t);
+trmp_code_t trm_unregister_command(trmp_session_t*, trmp_function_name_t);
 trmp_code_t trmp_call_command_with_args(trmp_session_t*, trmp_function_name_t, trmp_argument_string_t);
 trmp_function_t* trmp_get_current_function(trmp_session_t*);
 
@@ -67,19 +68,18 @@ trmp_code_t trm_register_command(trmp_session_t* session, trmp_command_t command
     char existing_signature[TRMP_MAX_ARGS * (TRMP_MAX_TYPE_LEN + 2)];
     trmp_code_t code;
     trmp_function_array_t functions;
-    trmp_function_t function;
+    trmp_function_t function, *existing;
     trmp_signature_t signature;
     trmp_arguments_t args;
 
     functions = session->internal_state.functions;
-    for (i = 0; i < functions.nfuncs; i++) {
-        if (strcmp(name, functions.funcs[i].name) == 0) {
-            signature = functions.funcs[i].signature;
-            trmp_unparse_types(existing_signature, signature.ntypes, signature.types);
-            sprintf(session->internal_state.msg, "command with name %s already exists with signature (%s).", name, existing_signature);
-            session->internal_state.code = TRMP_COMMAND_EXISTS_ERROR;
-            return TRMP_COMMAND_EXISTS_ERROR;
-        }
+    existing = trmp_find_function(&session->internal_state.functions, name);
+    if (existing != NULL) {
+        signature = existing->signature;
+        trmp_unparse_types(existing_signature, signature.ntypes, signature.types);
+        sprintf(session->internal_state.msg, "command with name %s already exists with signature (%s).", name, existing_signature);
+        session->internal_state.code = TRMP_COMMAND_EXISTS_ERROR;
+        return TRMP_COMMAND_EXISTS_ERROR;
     }
 
     session->internal_state.msg[0] = '\0';
@@ -108,6 +108,19 @@ trmp_code_t trm_register_command(trmp_session_t* session, trmp_command_t command
     function.signature = signature;
 
     trmp_append_function(&session->internal_state.functions, function);
+
+    return TRMP_OK;
+}
+
+trmp_code_t trm_unregister_command(trmp_session_t* session, trmp_function_name_t name) {
+    int exists;
+
+    exists = trmp_remove_function(&session->internal_state.functions, name);
+
+    if (!exists) {
+        sprintf(session->internal_state.msg, "No command exists");
+        return TRMP_NO_COMMAND_ERROR;
+    }
 
     return TRMP_OK;
 }
