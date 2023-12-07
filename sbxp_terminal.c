@@ -8,14 +8,16 @@
 #include "sbxp_history.c"
 #include "sbxp_session.c"
 
-void sbxp_intepreter(sbxp_session_t* session);
-sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command);
+void sbxp_intepreter(sbxp_session_t*);
+sbxp_code_t sbxp_get_command(sbxp_session_t*, char*);
+int sbxp_command_from_partial(sbxp_session_t*, char*, char**);
 int sbxp_is_directional_key(int, sbxp_key_press_t*);
 int sbxp_getchar(sbxp_key_press_t*);
 
 void sbxp_write_char(char, char*, int, int);
 void sbxp_backspace(char*, int, int);
 void sbxp_clear_line(int);
+int sbxp_max_match(char*, char*);
 
 
 void sbxp_intepreter(sbxp_session_t* session) {
@@ -40,8 +42,8 @@ void sbxp_intepreter(sbxp_session_t* session) {
 }
 
 sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
-    int index, len, i, history_index, history_size;
-    char c, curr_command[SBXP_COMMAND_SIZE + 1], entry[SBXP_COMMAND_SIZE + 1];
+    int index, len, i, ntok, history_index, history_size, max_len;
+    char c, entry[SBXP_COMMAND_SIZE + 1], *completion;
     sbxp_key_press_t key;
     sbxp_history_item_t *item, *temp;
 
@@ -105,7 +107,20 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
                 len--; index--;
             }
         } else if (c == '\t') {
-            continue;
+            ntok = sbxp_count_tokens(command);
+            if (ntok == 1) {
+                max_len = sbxp_command_from_partial(session, command, &completion);
+                if (completion != NULL) {
+                    sbxp_clear_line(strlen(session->state.prefix) + strlen(command));
+                    printf("%s", session->state.prefix);
+                    for (i = 0; i < max_len; i++) {
+                        printf("%c", completion[i]);
+                    }
+                    strcpy(command, completion);
+                    strncpy(command, completion, max_len);
+                    len = index = strlen(command);
+                }
+            }
         } else if (len < SBXP_COMMAND_SIZE) {
             sbxp_write_char(c, command, index, len);
             len++; index++;
@@ -121,6 +136,37 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
     item->command = strdup(command);
 
     return SBXP_OK;
+}
+
+int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** completion) {
+    int i, index, matches, len, max_len, temp;
+    char* min_match_str;
+    sbxp_function_array_t functions;
+
+    len = strlen(command);
+    functions = session->internal_state.functions;
+    max_len = 0;
+    *completion = NULL;
+    for (i = 0, matches = 0; i < functions.nfuncs; i++) {
+        if (strncmp(functions.funcs[i].name, command, len) == 0) {
+            index = i;
+            matches += 1;
+
+            if (min_match_str == NULL) {
+                *completion = functions.funcs[i].name;
+                max_len = strlen(min_match_str);
+            } else {
+                temp = sbxp_max_match(min_match_str, functions.funcs[i].name);
+                max_len = temp < max_len ? temp : max_len;
+            }
+        }
+    }
+
+    return max_len;
+}
+
+int sbxp_max_match(char* s1, char* s2) {
+    return 0;
 }
 
 int sbxp_getchar(sbxp_key_press_t* key) {

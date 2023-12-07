@@ -36,7 +36,7 @@ sbxp_code_t sbxp_parse_int(      sbxp_session_t*, sbxp_argument_t*, sbxp_argumen
 sbxp_code_t sbxp_parse_double(   sbxp_session_t*, sbxp_argument_t*, sbxp_argument_string_t*);
 sbxp_code_t sbxp_parse_string(   sbxp_session_t*, sbxp_argument_t*, sbxp_argument_string_t*);
 sbxp_code_t sbxp_parse_state_arg(sbxp_session_t*, sbxp_argument_t*, sbxp_argument_string_t*);
-int sbxp_count_arguments(sbxp_argument_string_t);
+int sbxp_count_tokens(sbxp_argument_string_t);
 
 char* sbxp_strip_start(char*);
 char* sbxp_get_next_token(char**);
@@ -82,7 +82,7 @@ sbxp_code_t sbxp_parse_arguments(sbxp_session_t* session, sbxp_function_t functi
     sbxp_type_t types[SBXP_MAX_ARGS];
     sbxp_code_t code;
     
-    nargs = sbxp_count_arguments(arg_str);
+    nargs = sbxp_count_tokens(arg_str);
     for (i = 0; i < args->nargs; i++) nargs += SBXP_STATE_ARG == args->args[i].type;
 
     if (nargs != args->nargs) {
@@ -352,7 +352,7 @@ char* sbxp_get_next_token(char** string_ptr) {
     return token;
 }
 
-int sbxp_count_arguments(sbxp_argument_string_t arg_str) {
+int sbxp_count_tokens(sbxp_argument_string_t arg_str) {
     int was_space, is_space, in_string, nargs;
     char c;
 
