@@ -13,6 +13,8 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command);
 int sbxp_is_directional_key(int, sbxp_key_press_t*);
 int sbxp_getchar(sbxp_key_press_t*);
 
+void sbxp_write_char(char, char*, int, int);
+void sbxp_backspace(char*, int, int);
 void sbxp_clear_line(int);
 
 
@@ -62,6 +64,7 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
 
                     history_index += 1;
                     temp = sbxp_get_history_item(&session->internal_state.history, history_index);
+
                     sbxp_clear_line(strlen(session->state.prefix) + strlen(command));
                     printf("%s%s", session->state.prefix, temp->command);
                     strcpy(command, temp->command);
@@ -72,6 +75,7 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
                 if (history_index > 0) {
                     history_index -= 1;
                     temp = sbxp_get_history_item(&session->internal_state.history, history_index);
+
                     sbxp_clear_line(strlen(session->state.prefix) + strlen(command));
                     printf("%s%s", session->state.prefix, temp->command);
                     strcpy(command, temp->command);
@@ -97,26 +101,14 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
 
         if (c == 127 || c == 8) {
             if (index > 0) {
-                printf("\b%s ", command + index);
-                for (i = index - 1; i < len; i++) {
-                    command[i] = command[i + 1];
-                    printf("\b");
-                }
+                sbxp_backspace(command, index, len);
                 len--; index--;
             }
         } else if (c == '\t') {
             continue;
         } else if (len < SBXP_COMMAND_SIZE) {
-            printf("%c%s", c, command + index);
-            for (i = index; i < len; i++) {
-                printf("\b");
-            }
-
-            for (i = len - 1; i >= index; i--) {
-                command[i + 1] = command[i];
-            }
-            command[index++] = c;
-            len++;
+            sbxp_write_char(c, command, index, len);
+            len++; index++;
         } else {
             // command buffer filled
         }
@@ -178,6 +170,29 @@ int sbxp_is_directional_key(int c, sbxp_key_press_t* key) {
     }
 
     return 1;
+}
+
+void sbxp_write_char(char c, char* command, int index, int len) {
+    int i;
+
+    printf("%c%s", c, command + index);
+    for (i = index; i < len; i++) {
+        printf("\b");
+    }
+
+    for (i = len - 1; i >= index; i--) {
+        command[i + 1] = command[i];
+    }
+
+    command[index] = c;
+}
+
+void sbxp_backspace(char* command, int index, int len) {
+    printf("\b%s ", command + index);
+    for (int i = index - 1; i < len; i++) {
+        command[i] = command[i + 1];
+        printf("\b");
+    }
 }
 
 void sbxp_clear_line(int len) {
