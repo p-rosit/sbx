@@ -1,35 +1,35 @@
-#ifndef TRMP_FUNCTIONS_H
-#define TRMP_FUNCTIONS_H
+#ifndef SBXP_FUNCTIONS_H
+#define SBXP_FUNCTIONS_H
 
 #include <stdlib.h>
 #include <string.h>
-#include "trmp_data.c"
-#include "trmp_arguments.c"
+#include "sbxp_data.c"
+#include "sbxp_arguments.c"
 
-void trmp_free_function_array(trmp_function_array_t);
-void trmp_free_function(trmp_function_t);
+void sbxp_free_function_array(sbxp_function_array_t);
+void sbxp_free_function(sbxp_function_t);
 
-trmp_function_t*    trmp_find_function(trmp_function_array_t*, trmp_function_name_t);
-void                trmp_append_function(trmp_function_array_t*, trmp_function_t);
-int                 trmp_remove_function(trmp_function_array_t*, trmp_function_name_t);
+sbxp_function_t*    sbxp_find_function(sbxp_function_array_t*, sbxp_function_name_t);
+void                sbxp_append_function(sbxp_function_array_t*, sbxp_function_t);
+int                 sbxp_remove_function(sbxp_function_array_t*, sbxp_function_name_t);
 
-void trmp_free_function_array(trmp_function_array_t functions) {
+void sbxp_free_function_array(sbxp_function_array_t functions) {
     for (int i = 0; i < functions.nfuncs; i++) {
-        trmp_free_function(functions.funcs[i]);
+        sbxp_free_function(functions.funcs[i]);
     }
     free(functions.funcs);
 }
 
-void trmp_free_function(trmp_function_t function) {
+void sbxp_free_function(sbxp_function_t function) {
     free(function.name);
 }
 
-void trmp_append_function(trmp_function_array_t* functions, trmp_function_t function) {
-    trmp_function_array_t new_funcs;
+void sbxp_append_function(sbxp_function_array_t* functions, sbxp_function_t function) {
+    sbxp_function_array_t new_funcs;
 
     new_funcs.nfuncs = functions->nfuncs + 1;
-    new_funcs.funcs = malloc(new_funcs.nfuncs * sizeof(trmp_function_t));
-    memcpy(new_funcs.funcs, functions->funcs, functions->nfuncs * sizeof(trmp_function_t));
+    new_funcs.funcs = malloc(new_funcs.nfuncs * sizeof(sbxp_function_t));
+    memcpy(new_funcs.funcs, functions->funcs, functions->nfuncs * sizeof(sbxp_function_t));
 
     free(functions->funcs);
     new_funcs.funcs[functions->nfuncs] = function;
@@ -38,7 +38,7 @@ void trmp_append_function(trmp_function_array_t* functions, trmp_function_t func
     functions->funcs = new_funcs.funcs;
 }
 
-int trmp_remove_function(trmp_function_array_t* functions, trmp_function_name_t name) {
+int sbxp_remove_function(sbxp_function_array_t* functions, sbxp_function_name_t name) {
     int i, index, exists;
 
     for (i = 0, exists = 0; i < functions->nfuncs; i++) {
@@ -50,7 +50,7 @@ int trmp_remove_function(trmp_function_array_t* functions, trmp_function_name_t 
     }
 
     if (exists) {
-        trmp_free_function(functions->funcs[index]);
+        sbxp_free_function(functions->funcs[index]);
         for (i = index + 1; i < functions->nfuncs; i++) {
             functions->funcs[i - 1] = functions->funcs[i];
         }
@@ -60,7 +60,7 @@ int trmp_remove_function(trmp_function_array_t* functions, trmp_function_name_t 
     return exists;
 }
 
-trmp_function_t* trmp_find_function(trmp_function_array_t* functions, trmp_function_name_t name) {
+sbxp_function_t* sbxp_find_function(sbxp_function_array_t* functions, sbxp_function_name_t name) {
     int i, exists;
 
     for (i = 0, exists = 0; i < functions->nfuncs; i++) {

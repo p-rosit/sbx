@@ -1,39 +1,39 @@
-#ifndef TRMP_HISTORY_H
-#define TRMP_HISTORY_H
+#ifndef SBXP_HISTORY_H
+#define SBXP_HISTORY_H
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "trmp_data.c"
+#include "sbxp_data.c"
 
-void trmp_free_history(trmp_history_t* history);
-void trmp_free_history_item(trmp_history_item_t* item);
+void sbxp_free_history(sbxp_history_t* history);
+void sbxp_free_history_item(sbxp_history_item_t* item);
 
-int trmp_history_size(trmp_history_t*);
-trmp_history_item_t* trmp_new_history_item(trmp_history_t*);
-trmp_history_item_t* trmp_get_history_item(trmp_history_t*, int);
+int sbxp_history_size(sbxp_history_t*);
+sbxp_history_item_t* sbxp_new_history_item(sbxp_history_t*);
+sbxp_history_item_t* sbxp_get_history_item(sbxp_history_t*, int);
 
 
-void trmp_free_history(trmp_history_t* history) {
-    trmp_history_item_t* item;
+void sbxp_free_history(sbxp_history_t* history) {
+    sbxp_history_item_t* item;
 
-    for (int i = 0; i < trmp_history_size(history); i++) {
-        item = trmp_get_history_item(history, i);   
-        trmp_free_history_item(item);
+    for (int i = 0; i < sbxp_history_size(history); i++) {
+        item = sbxp_get_history_item(history, i);   
+        sbxp_free_history_item(item);
     }
     free(history->items);
 }
 
-void trmp_free_history_item(trmp_history_item_t* item) {
+void sbxp_free_history_item(sbxp_history_item_t* item) {
     free(item->function_name);
     free(item->command);
 }
 
-trmp_history_item_t* trmp_new_history_item(trmp_history_t* history) {
+sbxp_history_item_t* sbxp_new_history_item(sbxp_history_t* history) {
     history->last_index = (history->last_index + 1) % history->size;
 
     if (history->first_index == history->last_index) {
-        trmp_free_history_item(&history->items[history->last_index]);
+        sbxp_free_history_item(&history->items[history->last_index]);
         history->first_index = (history->first_index + 1) % history->size;
     }
 
@@ -44,13 +44,13 @@ trmp_history_item_t* trmp_new_history_item(trmp_history_t* history) {
     return &history->items[history->last_index];
 }
 
-trmp_history_item_t* trmp_get_history_item(trmp_history_t* history, int index) {
+sbxp_history_item_t* sbxp_get_history_item(sbxp_history_t* history, int index) {
     int size;
     if (index < 0) {
         return NULL;
     }
 
-    size = trmp_history_size(history);
+    size = sbxp_history_size(history);
 
     if (index > size - 1) {
         return NULL;
@@ -64,7 +64,7 @@ trmp_history_item_t* trmp_get_history_item(trmp_history_t* history, int index) {
     return &history->items[index];
 }
 
-int trmp_history_size(trmp_history_t* history) {
+int sbxp_history_size(sbxp_history_t* history) {
     if (history->last_index == -1) {
         return 0;
     } else if ((history->last_index + 1) % history->size != history->first_index) {

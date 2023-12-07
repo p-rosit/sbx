@@ -1,97 +1,97 @@
-#ifndef TRMP_TERMINAL_H
-#define TRMP_TERMINAL_H
+#ifndef SBXP_TERMINAL_H
+#define SBXP_TERMINAL_H
 
 #include <string.h>
 #include <termios.h>
 
-#include "trmp_data.c"
-#include "trmp_history.c"
-#include "trmp_session.c"
+#include "sbxp_data.c"
+#include "sbxp_history.c"
+#include "sbxp_session.c"
 
-void trmp_intepreter(trmp_session_t* session);
-trmp_code_t trmp_get_command(trmp_session_t* session, char* command);
-int trmp_is_directional_key(int, trmp_key_press_t*);
-int trmp_getchar(trmp_key_press_t*);
+void sbxp_intepreter(sbxp_session_t* session);
+sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command);
+int sbxp_is_directional_key(int, sbxp_key_press_t*);
+int sbxp_getchar(sbxp_key_press_t*);
 
-void trmp_clear_line(int);
+void sbxp_clear_line(int);
 
 
-void trmp_intepreter(trmp_session_t* session) {
-    char command[TRMP_COMMAND_SIZE + 1], **cmd;
-    trmp_code_t code;
+void sbxp_intepreter(sbxp_session_t* session) {
+    char command[SBXP_COMMAND_SIZE + 1], **cmd;
+    sbxp_code_t code;
 
     command[0] = '\0';
     while (!session->internal_state.exit) {
         printf("%s", session->state.prefix);
         fflush(stdout);
 
-        code = trmp_get_command(session, command);
+        code = sbxp_get_command(session, command);
 
         printf("\n");
         if (*command == '\0') {continue;}
 
-        code = trmp_call_command(session, command);
-        if (code != TRMP_OK) {
+        code = sbxp_call_command(session, command);
+        if (code != SBXP_OK) {
             printf("%s\n", session->internal_state.msg);
         }
     }
 }
 
-trmp_code_t trmp_get_command(trmp_session_t* session, char* command) {
+sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
     int index, len, i, history_index, history_size;
-    char c, curr_command[TRMP_COMMAND_SIZE + 1], entry[TRMP_COMMAND_SIZE + 1];
-    trmp_key_press_t key;
-    trmp_history_item_t *item, *temp;
+    char c, curr_command[SBXP_COMMAND_SIZE + 1], entry[SBXP_COMMAND_SIZE + 1];
+    sbxp_key_press_t key;
+    sbxp_history_item_t *item, *temp;
 
     index = 0;
     len = 0;
     command[0] = '\0';
     entry[0] = '\0';
 
-    item = trmp_new_history_item(&session->internal_state.history);
+    item = sbxp_new_history_item(&session->internal_state.history);
     item->command = entry;
     history_index = 0;
-    history_size = trmp_history_size(&session->internal_state.history);
-    while ((c = trmp_getchar(&key)) != '\n') {
+    history_size = sbxp_history_size(&session->internal_state.history);
+    while ((c = sbxp_getchar(&key)) != '\n') {
         switch (key) {
-            case (TRMP_UP_KEY):
+            case (SBXP_UP_KEY):
                 if (history_index < history_size - 1) {
                     if (history_index == 0) {
                         strcpy(item->command, command);
                     }
 
                     history_index += 1;
-                    temp = trmp_get_history_item(&session->internal_state.history, history_index);
-                    trmp_clear_line(strlen(session->state.prefix) + strlen(command));
+                    temp = sbxp_get_history_item(&session->internal_state.history, history_index);
+                    sbxp_clear_line(strlen(session->state.prefix) + strlen(command));
                     printf("%s%s", session->state.prefix, temp->command);
                     strcpy(command, temp->command);
                     index = len = strlen(command);
                 }
                 continue;
-            case (TRMP_DOWN_KEY):
+            case (SBXP_DOWN_KEY):
                 if (history_index > 0) {
                     history_index -= 1;
-                    temp = trmp_get_history_item(&session->internal_state.history, history_index);
-                    trmp_clear_line(strlen(session->state.prefix) + strlen(command));
+                    temp = sbxp_get_history_item(&session->internal_state.history, history_index);
+                    sbxp_clear_line(strlen(session->state.prefix) + strlen(command));
                     printf("%s%s", session->state.prefix, temp->command);
                     strcpy(command, temp->command);
                     index = len = strlen(command);
                 }
                 continue;
-            case (TRMP_RIGHT_KEY):
+            case (SBXP_RIGHT_KEY):
                 if (index < len) {
                     printf("%c", command[index++]);
                 }
                 continue;
-            case (TRMP_LEFT_KEY):
+            case (SBXP_LEFT_KEY):
                 if (index > 0) {
                     index--;
                     printf("\b");
                 }
                 continue;
-            case (TRMP_UNKNOWN_KEY):
+            case (SBXP_UNKNOWN_KEY):
                 continue;
-            case (TRMP_NORMAL_KEY):
+            case (SBXP_NORMAL_KEY):
                 break;
         }
 
@@ -106,7 +106,7 @@ trmp_code_t trmp_get_command(trmp_session_t* session, char* command) {
             }
         } else if (c == '\t') {
             continue;
-        } else if (len < TRMP_COMMAND_SIZE) {
+        } else if (len < SBXP_COMMAND_SIZE) {
             printf("%c%s", c, command + index);
             for (i = index; i < len; i++) {
                 printf("\b");
@@ -128,10 +128,10 @@ trmp_code_t trmp_get_command(trmp_session_t* session, char* command) {
     command[len] = '\0';
     item->command = strdup(command);
 
-    return TRMP_OK;
+    return SBXP_OK;
 }
 
-int trmp_getchar(trmp_key_press_t* key) {
+int sbxp_getchar(sbxp_key_press_t* key) {
    struct termios oldtc;
    struct termios newtc;
    int c, is_directional;
@@ -144,9 +144,9 @@ int trmp_getchar(trmp_key_press_t* key) {
 
    c = getchar();
 
-   *key = TRMP_NORMAL_KEY;
+   *key = SBXP_NORMAL_KEY;
 
-   if (trmp_is_directional_key(c, key)) {
+   if (sbxp_is_directional_key(c, key)) {
        c = '\0';
    }
 
@@ -154,33 +154,33 @@ int trmp_getchar(trmp_key_press_t* key) {
    return c;
 }
 
-int trmp_is_directional_key(int c, trmp_key_press_t* key) {
+int sbxp_is_directional_key(int c, sbxp_key_press_t* key) {
     if (c != 27) {return 0;}
 
-    if (getchar() != 91) {*key = TRMP_UNKNOWN_KEY; return 0;}
+    if (getchar() != 91) {*key = SBXP_UNKNOWN_KEY; return 0;}
 
     switch (getchar()) {
         case (65):
-            *key = TRMP_UP_KEY;
+            *key = SBXP_UP_KEY;
             break;
         case (66):
-            *key = TRMP_DOWN_KEY;
+            *key = SBXP_DOWN_KEY;
             break;
         case (67):
-            *key = TRMP_RIGHT_KEY;
+            *key = SBXP_RIGHT_KEY;
             break;
         case (68):
-            *key = TRMP_LEFT_KEY;
+            *key = SBXP_LEFT_KEY;
             break;
         default:
-            *key = TRMP_UNKNOWN_KEY;
+            *key = SBXP_UNKNOWN_KEY;
             return 0;
     }
 
     return 1;
 }
 
-void trmp_clear_line(int len) {
+void sbxp_clear_line(int len) {
     printf("\r%*c\r", len, ' ');
 }
 
