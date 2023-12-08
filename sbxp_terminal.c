@@ -42,7 +42,7 @@ void sbxp_intepreter(sbxp_session_t* session) {
 }
 
 sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
-    int index, len, i, ntok, history_index, history_size, max_len;
+    int index, len, i, ntok, history_index, history_size;
     char c, entry[SBXP_COMMAND_SIZE + 1], *completion;
     sbxp_key_press_t key;
     sbxp_history_item_t *item, *temp;
@@ -109,23 +109,22 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
         } else if (c == '\t') {
             ntok = sbxp_count_tokens(command);
             if (ntok == 1) {
-                max_len = sbxp_command_from_partial(session, command, &completion);
+                int completion_len = sbxp_command_from_partial(session, command, &completion);
                 if (completion != NULL) {
-                    sbxp_clear_line(strlen(session->state.prefix) + strlen(command));
-                    printf("%s", session->state.prefix);
-                    for (i = 0; i < max_len; i++) {
+                    for (i = len; i < completion_len; i++) {
                         printf("%c", completion[i]);
+                        command[i] = completion[i];
+                        len++; index++;
                     }
-                    strcpy(command, completion);
-                    strncpy(command, completion, max_len);
-                    len = index = strlen(command);
+                } else {
+                    /* Tab completion failed */
                 }
             }
         } else if (len < SBXP_COMMAND_SIZE) {
             sbxp_write_char(c, command, index, len);
             len++; index++;
         } else {
-            // command buffer filled
+            /* command buffer filled */
         }
 
         command[len] = '\0';
@@ -140,7 +139,6 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
 
 int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** completion) {
     int i, index, matches, len, max_len, temp;
-    char* min_match_str;
     sbxp_function_array_t functions;
 
     len = strlen(command);
@@ -152,11 +150,11 @@ int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** com
             index = i;
             matches += 1;
 
-            if (min_match_str == NULL) {
+            if (*completion == NULL) {
                 *completion = functions.funcs[i].name;
-                max_len = strlen(min_match_str);
+                max_len = strlen(*completion);
             } else {
-                temp = sbxp_max_match(min_match_str, functions.funcs[i].name);
+                temp = sbxp_max_match(*completion, functions.funcs[i].name);
                 max_len = temp < max_len ? temp : max_len;
             }
         }
@@ -166,7 +164,17 @@ int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** com
 }
 
 int sbxp_max_match(char* s1, char* s2) {
-    return 0;
+    int match, s1_len, s2_len;
+
+    for (int i = 0; s1[i] != '\0' && s2[i] != '\0'; i++) {
+        if (s1[i] == s2[i]) {
+            match++;
+        } else {
+            break;
+        }
+    }
+
+    return match;
 }
 
 int sbxp_getchar(sbxp_key_press_t* key) {
