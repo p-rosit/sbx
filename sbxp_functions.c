@@ -61,11 +61,10 @@ int sbxp_remove_function(sbxp_function_array_t* functions, sbxp_function_name_t 
 }
 
 sbxp_function_t* sbxp_find_function(sbxp_function_array_t* functions, sbxp_function_name_t name) {
-    int i, exists;
+    int i;
 
-    for (i = 0, exists = 0; i < functions->nfuncs; i++) {
+    for (i = 0; i < functions->nfuncs; i++) {
         if (strcmp(name, functions->funcs[i].name) == 0) {
-            exists = 1;
             return &functions->funcs[i];
         }
     }

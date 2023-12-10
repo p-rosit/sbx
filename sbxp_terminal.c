@@ -21,11 +21,13 @@ int sbxp_max_match(char*, char*);
 
 
 void sbxp_intepreter(sbxp_session_t* session) {
-    char command[SBXP_COMMAND_SIZE + 1], **cmd;
+    char command[SBXP_COMMAND_SIZE + 1];
+    volatile int should_exit;
     sbxp_code_t code;
 
     command[0] = '\0';
-    while (!session->internal_state.exit) {
+    should_exit = session->internal_state.exit;
+    while (!should_exit) {
         printf("%s", session->state.prefix);
         fflush(stdout);
 
@@ -38,12 +40,15 @@ void sbxp_intepreter(sbxp_session_t* session) {
         if (code != SBXP_OK) {
             printf("%s\n", session->internal_state.msg);
         }
+
+        should_exit = session->internal_state.exit;
     }
 }
 
 sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
     int index, len, i, ntok, history_index, history_size;
-    char c, entry[SBXP_COMMAND_SIZE + 1], *completion;
+    volatile char c;
+    char entry[SBXP_COMMAND_SIZE + 1], *completion;
     sbxp_key_press_t key;
     sbxp_history_item_t *item, *temp;
 
@@ -138,7 +143,7 @@ sbxp_code_t sbxp_get_command(sbxp_session_t* session, char* command) {
 }
 
 int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** completion) {
-    int i, index, matches, len, max_len, temp;
+    int i, matches, len, max_len, temp;
     sbxp_function_array_t functions;
 
     len = strlen(command);
@@ -147,7 +152,6 @@ int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** com
     *completion = NULL;
     for (i = 0, matches = 0; i < functions.nfuncs; i++) {
         if (strncmp(functions.funcs[i].name, command, len) == 0) {
-            index = i;
             matches += 1;
 
             if (*completion == NULL) {
@@ -164,7 +168,7 @@ int sbxp_command_from_partial(sbxp_session_t* session, char* command, char** com
 }
 
 int sbxp_max_match(char* s1, char* s2) {
-    int match, s1_len, s2_len;
+    int match;
 
     for (int i = 0; s1[i] != '\0' && s2[i] != '\0'; i++) {
         if (s1[i] == s2[i]) {
@@ -180,7 +184,7 @@ int sbxp_max_match(char* s1, char* s2) {
 int sbxp_getchar(sbxp_key_press_t* key) {
    struct termios oldtc;
    struct termios newtc;
-   int c, is_directional;
+   int c;
 
    tcgetattr(fileno(stdin), &oldtc);
    newtc = oldtc;

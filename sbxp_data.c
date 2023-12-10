@@ -5,7 +5,6 @@
 #define SBXP_MESSAGE_SIZE (2048)
 #define SBXP_COMMAND_SIZE (100)
 
-typedef enum   sbxp_type                sbxp_type_t;
 typedef struct sbxp_arguments           sbxp_arguments_t;
 typedef struct sbxp_argument            sbxp_argument_t;
 typedef union  sbxp_data                sbxp_data_t;
@@ -13,23 +12,15 @@ typedef union  sbxp_data                sbxp_data_t;
 typedef struct sbx_state                sbx_state_t;
 typedef struct sbxp_internal_state      sbxp_internal_state_t;
 typedef struct sbxp_session             sbxp_session_t;
-typedef enum   sbxp_code                sbxp_code_t;
 
 typedef struct sbxp_function_array      sbxp_function_array_t;
 typedef struct sbxp_function            sbxp_function_t;
 typedef struct sbxp_signature           sbxp_signature_t;
 
-typedef enum   sbxp_key_press           sbxp_key_press_t;
 typedef struct sbxp_history             sbxp_history_t;
 typedef struct sbxp_history_item        sbxp_history_item_t;
 
-typedef sbxp_code_t (*sbxp_command_t)(sbxp_session_t*, sbxp_signature_t*, sbxp_arguments_t);
-typedef char* sbxp_function_name_t;
-typedef char* sbxp_command_signature_t;
-typedef char* sbxp_argument_string_t;
-
-
-enum sbxp_code {
+typedef enum sbxp_code {
     SBXP_OK,
     SBXP_COMMAND_EXISTS_ERROR,
     SBXP_NO_COMMAND_ERROR,
@@ -38,25 +29,30 @@ enum sbxp_code {
     SBXP_TYPE_ERROR,
     SBXP_INPUT_ERROR,
     SBXP_UNKNOWN_ERROR,
-};
+} sbxp_code_t;
 
-enum sbxp_type {
+typedef enum sbxp_type {
     SBXP_BOOL,
     SBXP_INT,
     SBXP_DOUBLE,
     SBXP_STRING,
     SBXP_STATE_ARG,
     SBXP_UNKNOWN,
-};
+} sbxp_type_t;
 
-enum sbxp_key_press {
+typedef enum sbxp_key_press {
     SBXP_NORMAL_KEY,
     SBXP_UP_KEY,
     SBXP_DOWN_KEY,
     SBXP_LEFT_KEY,
     SBXP_RIGHT_KEY,
     SBXP_UNKNOWN_KEY,
-};
+} sbxp_key_press_t;
+
+typedef sbxp_code_t (*sbxp_command_t)(sbxp_session_t*, sbxp_signature_t*, sbxp_arguments_t);
+typedef char* sbxp_function_name_t;
+typedef char* sbxp_command_signature_t;
+typedef char* sbxp_argument_string_t;
 
 union sbxp_data {
     _Bool bool_type;

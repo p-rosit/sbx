@@ -67,12 +67,10 @@ sbxp_code_t sbx_register_command(sbxp_session_t* session, sbxp_command_t command
     int i, n_state_args;
     char existing_signature[SBXP_MAX_ARGS * (SBXP_MAX_TYPE_LEN + 2)];
     sbxp_code_t code;
-    sbxp_function_array_t functions;
     sbxp_function_t function, *existing;
     sbxp_signature_t signature;
     sbxp_arguments_t args;
 
-    functions = session->internal_state.functions;
     existing = sbxp_find_function(&session->internal_state.functions, name);
     if (existing != NULL) {
         signature = existing->signature;
@@ -127,7 +125,6 @@ sbxp_code_t sbx_unregister_command(sbxp_session_t* session, sbxp_function_name_t
 }
 
 sbxp_code_t sbxp_call_command(sbxp_session_t* session, char* command_str) {
-    int len;
     char *name, *argument_str;
     sbxp_code_t code;
 

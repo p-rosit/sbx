@@ -54,7 +54,12 @@ void* sbxp_unpack_argument(sbxp_argument_t* arg) {
             return &arg->data.string_type;
         case SBXP_STATE_ARG:
             return &arg->data.sbx_state;
+        case SBXP_UNKNOWN:
+            printf("sbxp_unpack_argument: unreachable error :)");
+            exit(1);
     }
+    printf("sbxp_unpack_argument: unknown type, even more unreachable :)");
+    exit(1);
 }
 
 sbxp_arguments_t sbxp_make_arguments(int nargs) {
@@ -78,7 +83,7 @@ void sbxp_free_arguments(sbxp_arguments_t args) {
 
 sbxp_code_t sbxp_parse_arguments(sbxp_session_t* session, sbxp_function_t function, sbxp_arguments_t* args, sbxp_argument_string_t arg_str) {
     int i, nargs;
-    char *token, func_sig[SBXP_MAX_ARGS * (SBXP_MAX_TYPE_LEN + 2)];
+    char func_sig[SBXP_MAX_ARGS * (SBXP_MAX_TYPE_LEN + 2)];
     sbxp_type_t types[SBXP_MAX_ARGS];
     sbxp_code_t code;
     
@@ -191,7 +196,7 @@ sbxp_code_t sbxp_parse_double(sbxp_session_t* session, sbxp_argument_t* arg, sbx
 }
 
 sbxp_code_t sbxp_parse_string(sbxp_session_t* session, sbxp_argument_t* arg, sbxp_argument_string_t* arg_str) {
-    int len, has_end;
+    int len;
     char* string;
 
     if (**arg_str != '\"') {
@@ -326,6 +331,9 @@ const char* sbxp_unparse_type(sbxp_type_t type) {
             return sbxp_state_type;
         case (SBXP_UNKNOWN):
             return sbxp_unknown;
+        default:
+            printf("sbxp_unparse_type: unreachable error :)");
+            exit(1);
     }
 }
 
